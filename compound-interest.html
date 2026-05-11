@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compound Interest Calculator — Start Saving Early</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f5f5f3;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --border: rgba(0,0,0,0.12);
+      --green: #1D9E75;
+      --green-light: rgba(29,158,117,0.08);
+      --orange: #D85A30;
+      --orange-light: rgba(216,90,48,0.06);
+      --gray-line: #B4B2A9;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c;
+        --bg-secondary: #2a2a28;
+        --text-primary: #f0ede8;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #888780;
+        --border: rgba(255,255,255,0.12);
+        --green: #4CC99A;
+        --green-light: rgba(76,201,154,0.1);
+        --orange: #F07A55;
+        --orange-light: rgba(240,122,85,0.08);
+        --gray-line: #888780;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .header {
+      background: var(--green);
+      color: #fff;
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .header p { font-size: 14px; opacity: 0.85; line-height: 1.5; }
+
+    .container { max-width: 560px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin: 0 0 14px;
+    }
+
+    .control-row { margin-bottom: 18px; }
+    .control-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .control-label { font-size: 15px; color: var(--text-secondary); }
+    .control-value { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .divider { border: none; border-top: 0.5px solid var(--border); margin: 24px 0; }
+
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 20px; }
+    .metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px 12px; }
+    .metric-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; }
+    .metric-value { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .metric-value.highlight { color: var(--green); }
+
+    .banner {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      background: var(--bg);
+    }
+    .banner-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+    .banner-subtitle { font-size: 11px; color: var(--text-tertiary); margin-bottom: 10px; }
+    .banner-cost { font-size: 28px; font-weight: 700; color: var(--orange); }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .legend-line { width: 16px; height: 3px; border-radius: 0; flex-shrink: 0; background: var(--gray-line); }
+
+    .chart-wrap { position: relative; width: 100%; height: 240px; margin-bottom: 20px; }
+
+    .insight {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .insight strong { color: var(--text-primary); font-weight: 600; }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 0.5px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>💸 The Power of Starting Early</h1>
+  <p>See how compound interest turns small savings into serious wealth — and why every year you wait costs you.</p>
+</div>
+
+<div class="container">
+
+  <p class="section-label">Your savings inputs</p>
+
+  <div class="control-row">
+    <div class="control-header">
+      <span class="control-label">Current age</span>
+      <span class="control-value" id="age-out">20</span>
+    </div>
+    <input type="range" id="age" min="15" max="40" value="20" step="1">
+  </div>
+
+  <div class="control-row">
+    <div class="control-header">
+      <span class="control-label">Monthly savings</span>
+      <span class="control-value" id="monthly-out">$200</span>
+    </div>
+    <input type="range" id="monthly" min="25" max="1000" value="200" step="25">
+  </div>
+
+  <div class="control-row">
+    <div class="control-header">
+      <span class="control-label">Annual return</span>
+      <span class="control-value" id="rate-out">7%</span>
+    </div>
+    <input type="range" id="rate" min="3" max="12" value="7" step="0.5">
+  </div>
+
+  <div class="control-row">
+    <div class="control-header">
+      <span class="control-label">Retire at age</span>
+      <span class="control-value" id="retire-out">65</span>
+    </div>
+    <input type="range" id="retire" min="55" max="75" value="65" step="1">
+  </div>
+
+  <hr class="divider">
+
+  <p class="section-label">Your results at retirement</p>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">You invest</div>
+      <div class="metric-value" id="total-contributed">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Interest earned</div>
+      <div class="metric-value" id="total-interest">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Final balance</div>
+      <div class="metric-value highlight" id="final-balance">—</div>
+    </div>
+  </div>
+
+  <div class="banner">
+    <div class="banner-label">Cost of waiting 10 years to start</div>
+    <div class="banner-subtitle" id="wait-subtitle">Starting at age 30 vs age 20</div>
+    <div class="banner-cost" id="cost-of-waiting">—</div>
+  </div>
+
+  <p class="section-label">Growth over time</p>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>Start now (you)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span>Start 10 yrs later</span>
+    <span class="legend-item"><span class="legend-line"></span>Amount contributed</span>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="growthChart" role="img" aria-label="Line chart comparing compound growth starting now vs starting 10 years later, up to retirement"></canvas>
+  </div>
+
+  <div class="insight" id="insight-box"></div>
+
+  <div class="footer">
+    For educational purposes only. Returns are not guaranteed. Assumes monthly compounding.<br>
+    Built with ❤️ to encourage young people to start saving early.
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+
+  function calcBalance(monthly, annualRate, years) {
+    const r = annualRate / 100 / 12;
+    if (r === 0) return monthly * 12 * years;
+    return monthly * ((Math.pow(1 + r, years * 12) - 1) / r);
+  }
+
+  function calcSeries(monthly, rate, startAge, retireAge, delay) {
+    const labels = [], earlyVals = [], lateVals = [], contribs = [];
+    for (let age = startAge; age <= retireAge; age++) {
+      const yearsIn = age - startAge;
+      labels.push(age);
+      earlyVals.push(Math.round(calcBalance(monthly, rate, yearsIn)));
+      const lateYears = Math.max(0, yearsIn - delay);
+      lateVals.push(Math.round(calcBalance(monthly, rate, lateYears)));
+      contribs.push(Math.round(monthly * 12 * yearsIn));
+    }
+    return { labels, earlyVals, lateVals, contribs };
+  }
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const greenColor  = isDark ? '#4CC99A' : '#1D9E75';
+  const orangeColor = isDark ? '#F07A55' : '#D85A30';
+  const grayColor   = isDark ? '#888780' : '#B4B2A9';
+  const gridColor   = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const tickColor   = isDark ? '#888780' : '#888780';
+
+  let chart = null;
+
+  function update() {
+    const age     = +document.getElementById('age').value;
+    const monthly = +document.getElementById('monthly').value;
+    const rate    = +document.getElementById('rate').value;
+    const retire  = +document.getElementById('retire').value;
+
+    document.getElementById('age-out').textContent    = age;
+    document.getElementById('monthly-out').textContent = '$' + monthly;
+    document.getElementById('rate-out').textContent   = rate + '%';
+    document.getElementById('retire-out').textContent  = retire;
+
+    const years         = Math.max(0, retire - age);
+    const finalBalance  = calcBalance(monthly, rate, years);
+    const contributed   = monthly * 12 * years;
+    const interest      = finalBalance - contributed;
+    const lateBalance   = calcBalance(monthly, rate, Math.max(0, years - 10));
+
+    document.getElementById('total-contributed').textContent = fmt(contributed);
+    document.getElementById('total-interest').textContent    = fmt(interest);
+    document.getElementById('final-balance').textContent     = fmt(finalBalance);
+    document.getElementById('wait-subtitle').textContent     = 'Starting at age ' + (age + 10) + ' vs age ' + age;
+    document.getElementById('cost-of-waiting').textContent  = fmt(finalBalance - lateBalance) + ' less';
+
+    const ratio = finalBalance > 0 ? Math.round((interest / finalBalance) * 100) : 0;
+    document.getElementById('insight-box').innerHTML =
+      '<strong>' + ratio + '%</strong> of your retirement balance comes from interest — not money you put in. ' +
+      'You invest <strong>' + fmt(contributed) + '</strong> and compound growth does the rest, turning it into <strong>' + fmt(finalBalance) + '</strong>. ' +
+      'That\'s the magic of starting at ' + age + '.';
+
+    const { labels, earlyVals, lateVals, contribs } = calcSeries(monthly, rate, age, retire, 10);
+
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = earlyVals;
+      chart.data.datasets[1].data = lateVals;
+      chart.data.datasets[2].data = contribs;
+      chart.update('none');
+    } else {
+      chart = new Chart(document.getElementById('growthChart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Start now', data: earlyVals, borderColor: greenColor, backgroundColor: isDark ? 'rgba(76,201,154,0.1)' : 'rgba(29,158,117,0.08)', borderWidth: 2.5, fill: true, pointRadius: 0, tension: 0.3 },
+            { label: 'Start 10 yrs later', data: lateVals, borderColor: orangeColor, backgroundColor: isDark ? 'rgba(240,122,85,0.08)' : 'rgba(216,90,48,0.06)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.3, borderDash: [5,3] },
+            { label: 'Contributions', data: contribs, borderColor: grayColor, backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 0, tension: 0, borderDash: [3,3] }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Age', font: { size: 11 }, color: tickColor },
+              ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 10 },
+              grid: { color: gridColor }
+            },
+            y: {
+              ticks: { color: tickColor, font: { size: 11 }, callback: v => v >= 1000000 ? '$' + (v/1000000).toFixed(1) + 'M' : v >= 1000 ? '$' + (v/1000).toFixed(0) + 'k' : '$' + v },
+              grid: { color: gridColor }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  ['age','monthly','rate','retire'].forEach(id => {
+    document.getElementById(id).addEventListener('input', update);
+  });
+
+  update();
+</script>
+
+</body>
+</html>
